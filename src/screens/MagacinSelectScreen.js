@@ -20,7 +20,7 @@ const MagacinSelectScreen = () => {
 
   const navigation = useNavigation();
   const route = useRoute();
-  const { id, korisnik } = route.params;
+  const { id, korisnik, nastavak } = route.params;
 
   useEffect(() => {
     const fetchMagacini = async () => {
@@ -39,11 +39,23 @@ const MagacinSelectScreen = () => {
 
   const handleSelect = async (magacin) => {
     setSelectedMagacin(magacin);
-    try {
-      const response = await getPopis(13, magacin.db_user, magacin.db_pass, magacin.db_sid); // ID 13 je testni
-      setZaglavlje(response.zaglavlje);
-    } catch (err) {
-      Alert.alert('Greška', err.message || 'Greška prilikom učitavanja zaglavlja.');
+
+    if (nastavak === 'Popis') {
+      try {
+        const response = await getPopis(13, magacin.db_user, magacin.db_pass, magacin.db_sid); // test ID
+        setZaglavlje(response.zaglavlje);
+      } catch (err) {
+        Alert.alert('Greška', err.message || 'Greška prilikom učitavanja zaglavlja.');
+      }
+    } else if (nastavak === 'Zalihe i Cijene') {
+      navigation.navigate('Zalihe', {
+        db_user: magacin.db_user,
+        db_pass: magacin.db_pass,
+        db_sid: magacin.db_sid,
+        mg_sifra_mg: magacin.id_mag,
+        korisnik,
+        id
+      });
     }
   };
 
@@ -80,7 +92,7 @@ const MagacinSelectScreen = () => {
         )}
       />
 
-      {zaglavlje && (
+      {zaglavlje && nastavak === 'Popis' && (
         <View style={styles.zaglavljeBox}>
           <Text style={styles.headerText}>Zaglavlje popisa:</Text>
           <Text style={styles.zaglavljeText}>Datum od: {zaglavlje.dod}</Text>

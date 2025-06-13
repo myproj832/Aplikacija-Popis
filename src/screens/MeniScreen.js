@@ -27,10 +27,8 @@ const MeniScreen = () => {
     const ucitajDozvole = async () => {
       try {
         const data = await getDozvole(id);
-        console.log('✅ Dozvole dobijene:', data);
         setDozvole(data);
       } catch (error) {
-        console.error('❌ Greška pri dohvatu dozvola:', error);
         Alert.alert('Greška', 'Nije moguće učitati dozvole.');
       } finally {
         setLoading(false);
@@ -45,17 +43,11 @@ const MeniScreen = () => {
 
     switch (naziv) {
       case 'Popis':
+      case 'Zalihe i Cijene':
         screen = 'MagacinSelect';
         break;
-      case 'Zalihe':
-        screen = 'Zalihe';
-        break;
-      case 'Cijene':
-        screen = 'Cijene';
-        break;
-
       default:
-        Alert.alert('Nepoznata dozvola', naziv);
+        Alert.alert('Nepoznata opcija', naziv);
         return;
     }
 
@@ -65,6 +57,7 @@ const MeniScreen = () => {
       db_user,
       db_pass,
       db_sid,
+      nastavak: naziv, // Prosleđujemo za dalje
     });
   };
 

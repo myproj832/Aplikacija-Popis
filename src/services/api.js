@@ -1,5 +1,29 @@
 const API_BASE_URL = 'http://85.94.117.27:4999/api';
 
+
+export const getZalihe = async (db_user, db_pass, db_sid, mg_sifra_mg) => {
+  const res = await fetch(`${API_BASE_URL}/zalihe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      db_user,
+      db_pass,
+      db_sid,
+      mg_sifra_mg,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    console.error('❌ Greška pri dohvatanju zaliha:', data.error);
+    throw new Error(data.error || 'Greška pri dohvatanju zaliha');
+  }
+
+  return data;
+};
+
+
 export const getMagacini = async (id_korisnika) => {
   const res = await fetch(`${API_BASE_URL}/magacini/${id_korisnika}`);
   if (!res.ok) {

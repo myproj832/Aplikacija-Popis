@@ -40,7 +40,7 @@ const PopisScreen = () => {
   const handleScan = () => {
     const indeks = sviArtikli.findIndex((a) => a.bar_code?.trim() === barkod.trim());
     if (indeks >= 0) {
-      const novaKolicina = parseFloat(unosKolicine.replace(',', '.')) || 0;
+      const novaKolicina = parseFloat(unosKolicine.replace(',', '.')) || 1;
       const noviArtikli = [...sviArtikli];
       const staraKol = parseFloat(noviArtikli[indeks].kol) || 0;
       noviArtikli[indeks].kol = staraKol + novaKolicina;
