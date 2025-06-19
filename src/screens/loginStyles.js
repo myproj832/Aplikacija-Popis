@@ -1,57 +1,70 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#fff',
+    position: 'relative',
+  },
+  topShape: {
+    position: 'absolute',
+    top: -height * 0.25,
+    left: -width * 0.5,
+    width: width * 2,
+    height: height * 0.6,
+    backgroundColor: '#f7797d',
+    borderBottomLeftRadius: width,
+    borderBottomRightRadius: width,
+    transform: [{ scaleX: 1.3 }],
+    zIndex: -1,
   },
   inner: {
     flex: 1,
-    padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: height * 0.25,
   },
-  image: {
-    width: width * 0.7,
-    height: width * 0.4,
-    marginBottom: 30,
+  logo: {
+    width: 220,   // uvećano
+    height: 110,
+    resizeMode: 'contain',
+    marginBottom: 40,
   },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#333333',
-    marginBottom: 20,
-    fontFamily: 'sans-serif-medium',
+  inputContainer: {
+    width: '100%',
+    marginBottom: 16,
   },
   input: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#DDD',
-    backgroundColor: '#F9F9F9',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    marginBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#b45fc9',
     fontSize: 16,
     color: '#333',
+    paddingVertical: 10,
   },
   button: {
-    backgroundColor: '#D628A0', // roze-ljubičasta
+    width: '100%',
+    backgroundColor: '#f77062',
     paddingVertical: 14,
-    paddingHorizontal: 40,
     borderRadius: 30,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    alignItems: 'center',
+    marginTop: 24,
   },
   buttonText: {
-    color: '#FFF',
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-    fontFamily: 'sans-serif',
+  },
+  footer: {
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 20,
+  },
+  footerLogo: {
+    width: 120,
+    height: 60,
+    resizeMode: 'contain',
   },
 });
