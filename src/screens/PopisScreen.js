@@ -11,6 +11,8 @@ import {
   Animated,
   Dimensions,
   Image,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import {
@@ -47,6 +49,7 @@ const PopisScreen = () => {
   const [searchVisible, setSearchVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('popisano');
   const [barkodFocused, setBarkodFocused] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const inputRefs = useRef({});
   const barkodInputRef = useRef(null);
@@ -76,6 +79,19 @@ const PopisScreen = () => {
       duration: 600,
       useNativeDriver: true,
     }).start();
+
+    // Keyboard listeners
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
   }, []);
 
   // Poseban useEffect za fokus koji se pokreće svaki put kada se vrati na tab "popisano"
@@ -248,7 +264,10 @@ const PopisScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <Animated.View style={[styles.animatedContainer, { opacity: fade }]}>
         <View style={styles.background}>
           <View style={styles.curveTop} />
@@ -365,39 +384,47 @@ const PopisScreen = () => {
             data={filtriraniArtikli}
             keyExtractor={(item, index) => `${item.rbs || index}_${index}`}
             renderItem={renderArtikal}
-            contentContainerStyle={styles.listContent}
+            contentContainerStyle={[
+              styles.listContent,
+              // Dinamički padding na osnovu toga da li je tastatura otvorena i da li je "popisano" tab
+              { paddingBottom: activeTab === 'popisano' ? (keyboardVisible ? 20 : 160) : 100 }
+            ]}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           />
         </View>
 
-        {activeTab === 'popisano' && (
-          <View style={styles.footerButtons}>
-            <TouchableOpacity
-              style={[styles.footerBtn, styles.resetButton]}
-              onPress={handleReset}
-            >
-              <Text style={styles.footerText}>Poništi</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.footerBtn, styles.saveButton]}
-              onPress={handleSave}
-            >
-              <Text style={styles.footerText}>Sačuvaj</Text>
-            </TouchableOpacity>
+        {/* Fixed Footer Logo - UVEK na dnu, ali SAMO kada tastatura nije vidljiva */}
+        {!keyboardVisible && (
+          <View style={styles.fixedFooterLogo}>
+            <Text style={styles.poweredByText}>Powered by</Text>
+            <Image
+              source={require('../assets/logoBlipko.png')}
+              style={styles.footerLogo}
+              resizeMode="contain"
+            />
           </View>
         )}
       </Animated.View>
 
-      {/* Footer logo - POTPUNO NEZAVISAN OD OSTATKA */}
-      <View style={styles.absoluteFooter}>
-        <Image
-          source={require('../assets/logoBlipko.png')}
-          style={styles.footerLogo}
-          resizeMode="contain"
-        />
-      </View>
-    </View>
+      {/* Fixed Footer Buttons - SAMO za "popisano" tab i SAMO kada tastatura nije vidljiva */}
+      {activeTab === 'popisano' && !keyboardVisible && (
+        <View style={styles.fixedFooterButtons}>
+          <TouchableOpacity
+            style={[styles.footerBtn, styles.resetButton]}
+            onPress={handleReset}
+          >
+            <Text style={styles.footerText}>Poništi</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.footerBtn, styles.saveButton]}
+            onPress={handleSave}
+          >
+            <Text style={styles.footerText}>Sačuvaj</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </KeyboardAvoidingView>
   );
 };
 
@@ -408,7 +435,6 @@ const styles = StyleSheet.create({
   },
   animatedContainer: {
     flex: 1,
-    paddingBottom: 70, // Osigurava da sadržaj ne ide preko footera
   },
   background: {
     ...StyleSheet.absoluteFillObject,
@@ -458,12 +484,12 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 20,
     paddingBottom: 15,
-    zIndex: 200,
+    zIndex: 9999,
     backgroundColor: 'transparent',
   },
   backButtonContainer: {
-    zIndex: 100,
-    elevation: 100,
+    zIndex: 9999,
+    elevation: 9999,
     padding: 8,
     borderRadius: 25,
   },
@@ -634,7 +660,7 @@ const styles = StyleSheet.create({
     zIndex: 50,
   },
   listContent: {
-    paddingBottom: 160, // Smanjen padding jer imamo paddingBottom na animatedContainer
+    // Dinamički paddingBottom se postavlja u komponenti
   },
   artikal: {
     padding: 8,
@@ -694,13 +720,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#ff6b6b',
   },
-  footerButtons: {
+  // Footer buttons - SAMO kada tastatura nije vidljiva
+  fixedFooterButtons: {
+    position: 'absolute',
+    bottom: 50, // postavi malo iznad logoa
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingVertical: 10,
+    backgroundColor: 'transparent',
     gap: 12,
-    zIndex: 150,
-    marginBottom: 60,
+    zIndex: 1000,
   },
   footerBtn: {
     flex: 1,
@@ -724,17 +755,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  absoluteFooter: {
+  // Footer logo - UVEK na dnu ali SAMO kada tastatura nije vidljiva
+  fixedFooterLogo: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 30,
     left: 0,
     right: 0,
-    height: 70,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'transparent',
+    zIndex: 1,
     pointerEvents: 'none',
-    zIndex: 9999,
+  },
+  poweredByText: {
+    fontSize: 12,
+    color: 'white',
+    marginBottom: 4,
+    opacity: 0.8,
   },
   footerLogo: {
     width: W * 0.25,
